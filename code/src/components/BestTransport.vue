@@ -104,18 +104,34 @@ export default {
   methods: {
     // Implemente aqui os metodos utilizados na pagina
     buttonAnalise(){
+      var select_default = 'Selecione aqui o destino do frete'
+      if( (this.valCity != select_default || this.valCity != '')  && 
+          (this.valPeso > 0 )){
+        var info
+        for(const data of this.data_frete){
+          if(data.city == this.valCity){
+            info = data
+            console.log(info)
+          }
+        }
+      }
+
       console.log(this.valCity)
       console.log(this.valPeso)
       
     },
     get_cities(){
+      var duplicated_city = ' '
       var options = "<option>Selecione aqui o destino do frete</option>";
       for(const data of this.data_frete){
-        options += "<option>"+ data.city +"</option>";
+
+        if(!(duplicated_city.includes(data.city))){
+          options += "<option>"+ data.city +"</option>";
+          duplicated_city += data.city + " "
+        }
       }
       document.getElementById("sel_cities").innerHTML = options;
     }
-
   },
 }
 </script>
