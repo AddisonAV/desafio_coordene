@@ -3,7 +3,7 @@
     <ul>
     <b-navbar toggleable="lg" type="dark" variant="info">
         <b-navbar-brand class="ml-2">
-          <img src = "src/assets/logo.png" />
+          <img class="logo" src = "../assets/logo.png" />
           <b style="color:black">{{ appName }}</b>
         </b-navbar-brand>
     </b-navbar>
@@ -16,19 +16,24 @@
 
       <div class="destino">
         Destino
-
-          <select name="cars" id="cars" style="width: 275px; font-size: medium;" >
-            <option value="volvo">Volvo</option>
-            <option value="saab">Saab</option>
-            <option value="mercedes">Mercedes</option>
-            <option value="audi">Audi</option>
-          </select>        
+        <div>
+          <select class="select-cities" v-model="valCity" id="sel_cities" name="sel_cities"></select>
+        </div>
+        
+                 
       </div>
 
       <div class="peso">
         Peso
         
-        <input type="number" placeholder="Insira aqui o peso da carga em Kg" style="width: 300px; font-size: medium;">
+        <div>
+          <input 
+            type="number" 
+            placeholder="Insira aqui o peso da carga em Kg" 
+            v-model="valPeso"
+          >
+        </div>
+        
       </div>
 
       <div class="body-button">
@@ -58,6 +63,7 @@ import {
   BNavbar,
   BNavbarBrand,
 } from 'bootstrap-vue'
+import axios from 'axios'
 
 export default {
   components: {
@@ -68,11 +74,16 @@ export default {
     const appName = ''
     const cheaper = ''
     const fastest = ''
+    const valPeso = 0
+    const valCity = ''
 
     return {
       appName,
       cheaper,
-      fastest
+      fastest,
+      data_frete:undefined,
+      valPeso,
+      valCity
     }
   },
   created() {
@@ -82,16 +93,29 @@ export default {
     this.appName = 'MELHOR FRETE'
     this.cheaper = ''
     this.fastest = ''
+
+    axios.get('http://localhost:3000/transport')
+      .then((resp)=>{
+        this.data_frete = resp.data
+        this.get_cities()
+      })
   },
+  
   methods: {
     // Implemente aqui os metodos utilizados na pagina
-    methodFoo() {
-      console.log(this.appName)
-    },
     buttonAnalise(){
-      this.cheaper = ''
-      this.fastest = ''
+      console.log(this.valCity)
+      console.log(this.valPeso)
+      
+    },
+    get_cities(){
+      var options = "<option>Selecione aqui o destino do frete</option>";
+      for(const data of this.data_frete){
+        options += "<option>"+ data.city +"</option>";
+      }
+      document.getElementById("sel_cities").innerHTML = options;
     }
+
   },
 }
 </script>
@@ -136,5 +160,23 @@ ul {
   font-size: small;
 }
 
+.select-cities{
+  font-size: small;
+  height: 30px;
+  background-color: rgba(36, 199, 240, 0.55);
+  width: 300px;
+}
 
+input{
+  width: 300px;
+  height: 30px;
+  font-size: small;
+  background-color: rgba(36, 199, 240, 0.55);
+  font-weight: 600;
+}
+
+.logo{
+  width: 40px;
+  margin-right: 10px;
+}
 </style>
