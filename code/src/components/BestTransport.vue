@@ -9,11 +9,12 @@
     </b-navbar>
     </ul>
 
-    <main>
+    <main class="main-body">
       <b> Como é o frete que você precisa?</b>
 
       <hr style="width:350px;color:black" >
 
+      
       <div class="destino">
         Destino
         <div>
@@ -36,23 +37,26 @@
         
       </div>
 
-      <div class="body-button">
-        <button v-on:click="buttonAnalise" style="background-color: #2aad61 !important;">Analisar</button>
+      <div class="analise-button">
+        <button class="analise-button-b" v-on:click="buttonAnalise">Analisar</button>
       </div>
 
-      <div class="body-results">
+      <div class="body-results" id="body-results-id">
         <b>Estas são as melhores alternativas de frete que encontramos para você.</b>
 
-        <hr style="width:350px;color:black" >
-      </div>
+        <hr style="width:440px;color:black" >
+     
 
-      <div class="reply-cheap">
-        <p>Frete mais barato: <b>{{ cheaper }}</b></p> 
-      </div>
+        <div class="reply-cheap box">
+          <img class="fast-logo" src="../assets/cheap-icon.png">
+          <p class="reply-fast-p">Frete mais barato: <b>{{ cheaper }}</b></p> 
+        </div>
 
-      <div class="reply-fast">
-        <p>Frete mais rápido: <b>{{ fastest }}</b></p> 
-      </div>
+        <div class="reply-fast box">
+          <img class="fast-logo" src = "../assets/fast-icon.png"/>
+          <p class="reply-fast-p"> Frete mais rápido: <b>{{ fastest }}</b></p> 
+        </div>
+       </div>
     </main>
   </div>
   
@@ -74,7 +78,7 @@ export default {
     const appName = ''
     const cheaper = ''
     const fastest = ''
-    const valPeso = 0
+    const valPeso = ''
     const valCity = ''
 
     return {
@@ -104,8 +108,11 @@ export default {
     // Implemente aqui os metodos utilizados na pagina
     buttonAnalise(){
       var select_default = 'Selecione aqui o destino do frete'
-      if( (this.valCity != select_default || this.valCity != '')  && 
+      if( (this.valCity != select_default && this.valCity != '')  && 
           (this.valPeso > 0 )){
+        document.getElementById("body-results-id").style.display = "inline";
+        
+
         var infos = []
         for(const data of this.data_frete){
           if(data.city == this.valCity){
@@ -130,15 +137,19 @@ export default {
                                             parseFloat(infos[cheaper_index].cost_transport_heavy.slice(2))))
             cheaper_index = index;
         }
-        const cost_total_cheaper = '' + (this.valPeso <= 100 ?  parseFloat(infos[cheaper_index].cost_transport_light.slice(2)) :
-                                              parseFloat(infos[cheaper_index].cost_transport_heavy.slice(2))) * this.valPeso
+        var cost_total_cheaper =  (this.valPeso <= 100 ?  parseFloat(infos[cheaper_index].cost_transport_light.slice(2)) :
+                                              (parseFloat(infos[cheaper_index].cost_transport_heavy.slice(2)))) * this.valPeso
         
+        cost_total_cheaper = cost_total_cheaper.toFixed(2)
         
         if(infos[fastest_index].lead_time === infos[cheaper_index].lead_time)
             fastest_index = cheaper_index
-         
-        const cost_total_fastest = '' + (this.valPeso <= 100 ?  parseFloat(infos[fastest_index].cost_transport_light.slice(2)) :
-                                              parseFloat(infos[fastest_index].cost_transport_heavy.slice(2))) * this.valPeso
+        
+        var cost_total_fastest = (this.valPeso <= 100 ?  parseFloat(infos[fastest_index].cost_transport_light.slice(2)) :
+                                              (parseFloat(infos[fastest_index].cost_transport_heavy.slice(2)))) * this.valPeso
+        
+        cost_total_fastest = cost_total_fastest.toFixed(2)
+
         this.cheaper = 'Transportadora ' + infos[cheaper_index].name + ' - R$ ' + (cost_total_cheaper)  + ' - ' + infos[cheaper_index].lead_time
         
         this.fastest = 'Transportador '  + infos[fastest_index].name + ' - R$ ' + (cost_total_fastest) + ' - ' + infos[fastest_index].lead_time
@@ -180,6 +191,12 @@ main{
   padding: 30px;
   font-size: larger;
 }
+.main-body{
+  display: flex;
+  align-items: center;
+  align-content: center;
+  flex-direction: column;
+}
 
 ul {
   border: 1px solid black;
@@ -188,22 +205,59 @@ ul {
 }
 
 .destino{
-  margin-left: 10px;
+  margin-left: 1vw;
 }
 
 .peso{
   margin-top: 5px;
-  margin-left: 10px;
+  margin-left: 1vw;
 }
 
-.body-button{
-  margin-left: 100px;
+.analise-button{
   margin-top: 20px;
+  
 }
+.analise-button-b{
+  background-color: rgba(89, 190, 131, 0.7) !important;
+  border-radius: 6px !important;
+}
+
 
 .body-results{
   margin-top: 30px;
   font-size: small;
+  display: none;
+}
+
+.body-results p{
+  /* outline-style: dashed;
+  outline-width: 2px;
+  margin-top: 15px !important;
+  padding: 5px;
+  border-radius: 8px; */
+}
+
+.box{
+  outline-style: dashed;
+  outline-width: 2px;
+  margin-top: 15px !important;
+  padding: 5px;
+  border-radius: 8px;
+  display: flex;
+  gap: 5px;
+}
+
+.reply-cheap{
+  /* width: fit-content; */
+  border-radius: 8px;
+  background-color: rgba(40, 170, 120, 0.664);
+
+}
+
+.reply-fast{
+  /* width: fit-content; */
+  border-radius: 8px;
+  background-color: rgba(45, 182, 236, 0.726);
 }
 
 .select-cities{
@@ -224,5 +278,15 @@ input{
 .logo{
   width: 40px;
   margin-right: 10px;
+}
+
+
+.reply-fast-p{
+  margin: 0;
+}
+
+.fast-logo{
+  height: 20px;
+  margin: 0;
 }
 </style>
