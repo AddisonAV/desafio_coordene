@@ -83,7 +83,8 @@ export default {
       fastest,
       data_frete:undefined,
       valPeso,
-      valCity
+      valCity,
+      
     }
   },
   created() {
@@ -91,8 +92,6 @@ export default {
     // para que isso ocorra na inicialização da pagina
 
     this.appName = 'MELHOR FRETE'
-    this.cheaper = ''
-    this.fastest = ''
 
     axios.get('http://localhost:3000/transport')
       .then((resp)=>{
@@ -107,21 +106,52 @@ export default {
       var select_default = 'Selecione aqui o destino do frete'
       if( (this.valCity != select_default || this.valCity != '')  && 
           (this.valPeso > 0 )){
-        var info
+        var infos = []
         for(const data of this.data_frete){
           if(data.city == this.valCity){
-            info = data
-            console.log(info)
+            infos.push(data)
+            //console.log(info)
           }
         }
+        //console.log(infos)
+        
+        // selecting fastest and cheapes from infos list
+        var fastest_index = 0
+        var cheaper_index = 0
+        for (let index = 0; index < infos.length; index++) {
+          const distance = parseFloat(infos[index].lead_time.slice(0,infos[index].lead_time.length-1));
+          const cost = this.valPeso <= 100 ?  parseFloat(infos[index].cost_transport_light.slice(2)) :
+                                              parseFloat(infos[index].cost_transport_heavy.slice(2))
+          
+          if(distance < parseFloat(infos[fastest_index].lead_time.slice(0,infos[fastest_index].lead_time.length-1)) )
+            fastest_index = index;
+          
+          if(cost < (this.valPeso <= 100 ? parseFloat(infos[cheaper_index].cost_transport_light.slice(2)) :
+                                            parseFloat(infos[cheaper_index].cost_transport_heavy.slice(2))))
+            cheaper_index = index;
+        }
+        const cost_total_cheaper = '' + (this.valPeso <= 100 ?  parseFloat(infos[cheaper_index].cost_transport_light.slice(2)) :
+                                              parseFloat(infos[cheaper_index].cost_transport_heavy.slice(2))) * this.valPeso
+        
+        
+        if(infos[fastest_index].lead_time === infos[cheaper_index].lead_time)
+            fastest_index = cheaper_index
+         
+        const cost_total_fastest = '' + (this.valPeso <= 100 ?  parseFloat(infos[fastest_index].cost_transport_light.slice(2)) :
+                                              parseFloat(infos[fastest_index].cost_transport_heavy.slice(2))) * this.valPeso
+        this.cheaper = 'Transportadora ' + infos[cheaper_index].name + ' - R$ ' + (cost_total_cheaper)  + ' - ' + infos[cheaper_index].lead_time
+        
+        this.fastest = 'Transportador '  + infos[fastest_index].name + ' - R$ ' + (cost_total_fastest) + ' - ' + infos[fastest_index].lead_time
+
       }
 
-      console.log(this.valCity)
-      console.log(this.valPeso)
+      //console.log(this.valCity)
+      //console.log(this.valPeso)
       
     },
     get_cities(){
       var duplicated_city = ' '
+      this.valCity = 'Selecione aqui o destino do frete'
       var options = "<option>Selecione aqui o destino do frete</option>";
       for(const data of this.data_frete){
 
